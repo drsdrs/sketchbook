@@ -1,0 +1,20 @@
+<html>
+<head>
+  <title>midiNote2ArduinoFreq</title>
+</head>
+<body>
+<script type="text/javascript">
+
+var fixedFreq = 16000000/32; 
+var cyclesArr = [][]; // div / cnt 
+for(var i=0; i<128; i++){
+  freq = 440 * Math.pow(2, ((i-69)/12));
+  cycles = Math.round(fixedFreq/freq);
+  cyclesArr[i] = cycles;
+}
+
+console.log(JSON.stringify(cyclesArr));
+
+</script>
+</body>
+</html>

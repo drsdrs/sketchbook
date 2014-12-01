@@ -1,38 +1,59 @@
-unsigned long previousMillis = 0;        // will store last time LED was updated
 byte led = 13;
+byte cnt;
 
+byte eventSize = 6;
+byte events [6][4] = {
+  {0,1,1,1},
+  {64,1,1,1},
+  {64,1,1,1},
+  {128,0,1,1},
+  {192,0,1,1},
+  {192,0,16,61}
+};
 
 void setup() {
   pinMode(led, OUTPUT);
+  Serial.begin(9600);
 }
 
-// the loop function runs over and over again forever
 void loop() {
-  unsigned long currentMillis = millis();
- 
-  if(currentMillis - previousMillis >= interval) {
-    // save the last time you blinked the LED 
-    previousMillis = currentMillis;
-    interval = (analogRead(0)>>2)+24;
-    beatLength = (analogRead(1)>>6)+1;
-    
-    if (record[tick][0]!=0) {
-      noteOn(record[tick][0], record[tick][1], record[tick][2]);
-      digitalWrite(led, HIGH);
-    }else {
-      digitalWrite(led, LOW);
-    }
   
-    if (tick>32){ tick = 0;}
+  delay(400);
 
+  cnt = cnt%eventSize;
+  
+  Serial.print(sizeof(events)/4);
+  Serial.print(" : ");
+  Serial.print(cnt);
+  Serial.print(" : ");
+  Serial.print(events[cnt][0]);
+  Serial.print(" - ");
+  Serial.print(events[cnt][1]);
+  Serial.print(" - ");
+  Serial.print(events[cnt][2]);
+  Serial.print(" - ");
+  Serial.println(events[cnt][3]);
+  
+  cnt++;
+  if(cnt==eventSize-1){ eventSize++; };
 
-    if (metronomCnt>metronomTick){
-      noteOn(153, 32, 50);      
-      //noteOn(137, 32, 0);
-      metronomCnt = 0;
-    }
-    metronomCnt++;
-    tick++;
-
-  }
 }
+
+void addSort(byte tick, byte noteOn, byte note, byte vel){
+  byte newEvents [eventSize+1][4];
+  byte j = 0;
+  for(byte i=0; i<eventSize; i++){
+    if(events[i][0]>tick){
+      newEvents[i];
+      newEvents[i][0] = 12;
+      newEvents[i][1] = 12;
+      newEvents[i][2] = 12;
+      newEvents[i][3] = 12;
+    } else {
+      newEvent[i] = events[j];
+      j++;
+    }
+    events = newEvents;
+    eventSize++;
+  }
+};
