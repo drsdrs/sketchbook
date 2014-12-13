@@ -2,7 +2,8 @@
 MIDI_CREATE_DEFAULT_INSTANCE();
 
 #include <LiquidCrystal.h>
-LiquidCrystal lcd(8, 10, 11, 5, 6, 7);
+LiquidCrystal lcd(8, 10, 4, 5, 6, 7);
+
 
 #include <MozziGuts.h>
 #include <Oscil.h>
@@ -14,6 +15,7 @@ LiquidCrystal lcd(8, 10, 11, 5, 6, 7);
 #include <EventDelay.h>
 #include <mozzi_fixmath.h>
 #include <Ead.h>
+
 
 #define CONTROL_RATE 256 // powers of 2 please
 
@@ -40,23 +42,24 @@ float freqTable[128] = {};
 //byte velPld[4] = {255, 255, 255, 255};
 
 byte ntsPldCnt = 0;
-byte lastNote = 0;
-
-int mini = 0;
+int mini = 255;
 int maxi = 0;
 
 
 /// menu stuff
-byte debounceBtn = 0;
-byte menuState = 1;
+byte debounceBtnA = 0;
+byte debounceBtnB = 0;
+byte debounceBtnC = 0;
 
-byte modVal[4] = {0,0,0,0};
+byte menuState = 1;
 
 // HARDWARE I/O
 #define encoderPinA 2
 #define encoderPinB 3
 
-#define btn 4
+#define btnA 4
+#define btnB 3
+#define btnC 2
 
 int encoderPos = 0;
 boolean A_set = false;
@@ -67,19 +70,22 @@ float filterLFOSpeed = 50;
 byte filterLFOAmount = 50;
 int filterLFOPhase = 514;// 1236
 boolean filterLFORetrigger = true;
-byte filterLFODiv = 4;
+byte filterLFODiv = 8;
   ///////////////////
 float phaseLFOSpeed = 0; 
 byte phaseLFOAmount = 0;
 int phaseLFOPhase = 514;// 1236
 boolean phaseLFORetrigger = true;
-byte phaseLFODiv = 4;
+byte phaseLFODiv = 0;
   //////////////////
-unsigned int volEnvAttack = 255;
+unsigned int volEnvAttack = 755;
 unsigned int volEnvDecay = 2255;
 byte volEnvValue;
 //
 //
+
+int modVal[4] = {0, 0, 0, 0};
+
 //
 byte phaseLFODivCnt = 0;
 byte filterLFODivCnt = 0;
@@ -95,6 +101,7 @@ void doEncoderB(){
   encoderPos += (A_set == B_set) ? +1 : -1;
 }
 
+byte lastNote = 0;
 
 
 void loop(){
