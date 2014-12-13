@@ -38,15 +38,23 @@ THE SOFTWARE.
 #define _MPU6050_H_
 
 #include "I2Cdev.h"
-//#include <avr/pgmspace.h>
 
+// supporting link:  http://forum.arduino.cc/index.php?&topic=143444.msg1079517#msg1079517
+// also: http://forum.arduino.cc/index.php?&topic=141571.msg1062899#msg1062899s
+#ifndef __arm__
+#include <avr/pgmspace.h>
+#else
+#define PROGMEM /* empty */
+#define pgm_read_byte(x) (*(x))
+#define pgm_read_word(x) (*(x))
+#define pgm_read_float(x) (*(x))
+#define PSTR(STR) STR
+#endif
 
 
 #define MPU6050_ADDRESS_AD0_LOW     0x68 // address pin low (GND), default for InvenSense evaluation board
 #define MPU6050_ADDRESS_AD0_HIGH    0x69 // address pin high (VCC)
 #define MPU6050_DEFAULT_ADDRESS     MPU6050_ADDRESS_AD0_LOW
-
-#define MPU6050_ADDRESS_COMPASS		0x0c
 
 #define MPU6050_RA_XG_OFFS_TC       0x00 //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
 #define MPU6050_RA_YG_OFFS_TC       0x01 //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
@@ -579,9 +587,7 @@ class MPU6050 {
 
         // ACCEL_*OUT_* registers
         void getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz);
-        void getMotion9t(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz, int16_t* t);
         void getMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz);
-        void getMotion6t(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* t);
         void getAcceleration(int16_t* x, int16_t* y, int16_t* z);
         int16_t getAccelerationX();
         int16_t getAccelerationY();
@@ -686,16 +692,16 @@ class MPU6050 {
         // XG_OFFS_TC register
         uint8_t getOTPBankValid();
         void setOTPBankValid(bool enabled);
-        int8_t getXGyroOffset();
-        void setXGyroOffset(int8_t offset);
+        int8_t getXGyroOffsetTC();
+        void setXGyroOffsetTC(int8_t offset);
 
         // YG_OFFS_TC register
-        int8_t getYGyroOffset();
-        void setYGyroOffset(int8_t offset);
+        int8_t getYGyroOffsetTC();
+        void setYGyroOffsetTC(int8_t offset);
 
         // ZG_OFFS_TC register
-        int8_t getZGyroOffset();
-        void setZGyroOffset(int8_t offset);
+        int8_t getZGyroOffsetTC();
+        void setZGyroOffsetTC(int8_t offset);
 
         // X_FINE_GAIN register
         int8_t getXFineGain();
@@ -722,16 +728,16 @@ class MPU6050 {
         void setZAccelOffset(int16_t offset);
 
         // XG_OFFS_USR* registers
-        int16_t getXGyroOffsetUser();
-        void setXGyroOffsetUser(int16_t offset);
+        int16_t getXGyroOffset();
+        void setXGyroOffset(int16_t offset);
 
         // YG_OFFS_USR* register
-        int16_t getYGyroOffsetUser();
-        void setYGyroOffsetUser(int16_t offset);
+        int16_t getYGyroOffset();
+        void setYGyroOffset(int16_t offset);
 
         // ZG_OFFS_USR* register
-        int16_t getZGyroOffsetUser();
-        void setZGyroOffsetUser(int16_t offset);
+        int16_t getZGyroOffset();
+        void setZGyroOffset(int16_t offset);
         
         // INT_ENABLE register (DMP functions)
         bool getIntPLLReadyEnabled();
@@ -779,9 +785,6 @@ class MPU6050 {
         // DMP_CFG_2 register
         uint8_t getDMPConfig2();
         void setDMPConfig2(uint8_t config);
-
-        //Magnetometer initialization
-        void setup_compass();
 
         // special methods for MotionApps 2.0 implementation
         #ifdef MPU6050_INCLUDE_DMP_MOTIONAPPS20
@@ -988,7 +991,7 @@ class MPU6050 {
 
     private:
         uint8_t devAddr;
-        uint8_t buffer[22];
+        uint8_t buffer[14];
 };
 
 #endif /* _MPU6050_H_ */
